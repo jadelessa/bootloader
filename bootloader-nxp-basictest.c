@@ -28,7 +28,7 @@ void runBootloader(void)
 		p_crc = _flash_read(FW_STORAGE_ADDR_CRC);
 		p_ini_crc_calc = _flash_read(FW_RUN_ADDR_SIGNATURE);
 
-		fw_len = (uint32_t)(*p_fim - FW_RUN_COMPILER_ADDR) - sizeof(unsigned int);		//o campo aponta para a ultima posicao do FW, entao subtraimos uma long word para compensar a posicao que traz o crc
+		fw_len = (uint32_t)(*p_fim - FW_RUN_COMPILER_ADDR) - sizeof(unsigned int);		//o campo aponta para a ultima posicao do FW, entao subtrai um long word para compensar a posicao que traz o crc
 
 		while (fw_len % 4 != 0)
 		{
@@ -112,7 +112,7 @@ void runBootloader(void)
 			{
 				retries = 0;
 				ret = BL_Copy_Error;
-				panic_pisca_leds_fast(ret);		// => Pisca Leds *** Panic !!! ***
+				panic_pisca_leds_fast(ret);		// *** Panic !!! ***
 			}
 		}
 }
@@ -121,11 +121,11 @@ void runBootloader(void)
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * @brief Realiza leitura da Flash a partir de determinado endereco.
  *
- * @param addr Endereco de início de leitura da Flash.
+ * @param addr Endereco de inÃ­cio de leitura da Flash.
  *
  * @param buf_read Ponteiro para buffer a ser preenchido.
  *
- * @param buf_length Quantidade de posições na Flash que se deseja ler || Tamanho do buffer.
+ * @param buf_length Quantidade de posiÃ§Ãµes na Flash que se deseja ler || Tamanho do buffer.
  */
 void _flash_read_buf(unsigned int addr, unsigned int *buf_read, size_t buf_length)
 {
@@ -146,7 +146,7 @@ void _flash_read_buf(unsigned int addr, unsigned int *buf_read, size_t buf_lengt
 *
 * @return status_t true Se conseguir escrever.
 *
-* @return status_t false Se não conseguir escrever.
+* @return status_t false Se nÃ£o conseguir escrever.
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 status_t _flash_write(uint32_t *data_buf, uint32_t start_addr, uint32_t lengthbytes)
@@ -222,7 +222,7 @@ void _crc32_config(CRC_Type *_base, crc_config_t *_crc_config_atual)
 	crc_config_atual.complementOut = false;
 	crc_config_atual.seed = 0xFFFFFFFFU;
 	CRC_Init(_base, (crc_config_t *)&_crc_config_atual);
-	_base->MODE = 0x36;		//[PAG. 80] -> https://usermanual.wiki/Pdf/MCUXpresso20SDK20API20Reference20ManualQN908x.1935622627.pdf pag
+	_base->MODE = 0x36;		// hard-coded
 }
 
 
@@ -243,9 +243,9 @@ void runBootloader(void)
 
 	p_crc = (uint32_t *)(_flash_read(FW_STORAGE_ADDR_CRC));
 	p_ini = (uint32_t *)(_flash_read(FW_STORAGE_ADDR_INIT));
-	p_fim = (int *)(_flash_read(FW_STORAGE_ADDR_FIM));		// endereço do fim do fw_storage armazenado
+	p_fim = (int *)(_flash_read(FW_STORAGE_ADDR_FIM));		// endereÃ§o do fim do fw_storage armazenado
 
-	//If enviar endereço final ->
+	//If enviar endereÃ§o final ->
 	fw_len = (uint32_t)(*p_fim - 0x8000);
 	while (fw_len % 4 != 0)
 	{
@@ -262,7 +262,7 @@ void runBootloader(void)
 	crc_config_atual.complementOut = false;
 	crc_config_atual.seed = 0xFFFFFFFFU;
 	CRC_Init(base, (crc_config_t *)&crc_config_atual);
-	base->MODE = 0x36;		//[PAG. 80] -> https://usermanual.wiki/Pdf/MCUXpresso20SDK20API20Reference20ManualQN908x.1935622627.pdf pag
+	base->MODE = 0x36;		// hard-coded 
 
 	CRC_WriteData(base, (const uint8_t *)p_fim, (size_t)((uint32_t)(fw_len-8))) ;
 	crc_calc = CRC_Get32bitResult(base);
@@ -294,24 +294,3 @@ void runBootloader(void)
 		runFirmware();
 	}
 }
-
-
-
-
-
-
-//  ROTINA PARA ARMAZENAR DADOS ALEATÓRIOS NO STORAGE
-	/*
-	unsigned int start_addr = 0;
-	uint32_t lengthbytes = 0 ;
-	unsigned int data_buf[TEST_MEM_WSIZE];
-	for (unsigned int i = 0; i < TEST_MEM_WSIZE; i++)
-	{
-		data_buf[i] = i;
-	}
-
-	lengthbytes = sizeof(data_buf);
-	start_addr = FW_STORAGE_ADDR_SIGNATURE+(sizeof(unsigned int));
-	ret = teste_storage((uint32_t *)&data_buf[0], start_addr, lengthbytes);
-//  FIM DA ROTINA PARA ARMAZENAR DADOS ALEATÓRIOS NO STORAGE
-	*/
